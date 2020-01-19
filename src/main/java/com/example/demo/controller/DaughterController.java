@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.beans.Daughter;
 import com.example.demo.service.DaughterService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 
 @RestController
@@ -110,5 +116,19 @@ public class DaughterController {
 		}
 
 		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+
+	@PatchMapping(path = "/update")
+	@ResponseBody
+	public ResponseEntity<?> updateDaughterByID(@RequestBody String daughter,
+			@RequestParam(value = "id", required = true) Long id) throws JsonParseException, JsonMappingException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParseException, IOException {
+
+		Daughter updateDaughter = daughterService.updateDaughterById(daughter, id);
+		if (updateDaughter == null) {
+			return new ResponseEntity<String>("Sorry No Data exist for id:-  " + id, HttpStatus.BAD_REQUEST);
+		}
+
+		return new ResponseEntity<Daughter>(updateDaughter, HttpStatus.OK);
 	}
 }
